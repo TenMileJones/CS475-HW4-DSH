@@ -11,6 +11,7 @@
 #include <sys/resource.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <ctype.h>
 #include "dsh.h"
 
 #define MAX_PROC 250
@@ -27,5 +28,51 @@ int main(int argc, char *argv[]) {
 
 	char *cmdline = (char*) malloc(MAXBUF); // stores user input from commmand line
 
-	return 0;
+	while(TRUE){
+		printf("dsh> ");
+		// reads up to 256 characters into the buffer
+		if (fgets(cmdline, MAXBUF, stdin) == NULL) {
+			exit(0);  // exit the program if EOF is input
+		}
+		
+		if (cmdline[strlen(cmdline)-1] != '\n'){
+			// reprompt if last char isn't '\n'; user input was too long 
+			printf("Error: input > 256 characters: Shorten input.\n");
+			continue;
+		} 
+		// remove '\n' from end of input and trim white space
+		cmdline[strlen(cmdline)-1] = '\0';
+		trimwhitespace(cmdline);
+
+		if (!strlen(cmdline)){
+			continue; // reprompt if entry is empty or just spaces
+		}
+
+		// split command into terms
+		char **terms = split(cmdline, " ");
+		
+		// print out all the tokens
+		int i = 0;
+		while (terms[i] != NULL) {
+			printf("%s\n", terms[i]);
+			i++;
+		}
+
+		if (!strcmp(terms[0], "exit")){
+			printf("Get me out!\n");
+			exit(0);
+		} else {
+			printf("Not done yet...\n");
+		}
+		
+
+
+
+
+	}
+	
+
+
+
+	
 }

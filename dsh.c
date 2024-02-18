@@ -14,15 +14,74 @@
 #include <errno.h>
 #include <err.h>
 #include <sys/stat.h>
+#include <ctype.h>
 #include <string.h>
 
 
-// TODO: Your function definitions below (declarations in dsh.h)
+
+
+
 
 /**
- * This is just an example. Delete this before 
- * submission.
- */
-void example(int* x) {
-    *x = thisIsGlobal;
-} 
+ * Trims white space from an input string in place.
+ * Credit: https://www.delftstack.com/howto/c/trim-string-in-c/
+ * @param str pointer to string to be trimmed
+*/
+void trimwhitespace(char *str) {
+    int start = 0, end = strlen(str) - 1;
+
+    // Remove leading whitespace
+    while (isspace(str[start])) {
+        start++;
+    }
+
+    // Remove trailing whitespace
+    while (end > start && isspace(str[end])) {
+        end--;
+    }
+    // If the string was trimmed, adjust the null terminator
+    if (start > 0 || end < (strlen(str) - 1)) {
+        memmove(str, str + start, end - start + 1);
+        str[end - start + 1] = '\0';
+    }
+    // TODO - remove
+    printf("Whitespace checker: [%s]\n", str);
+}
+
+/**
+ * Splits string into array of strings split by a delimiter.
+ * Delimiter must be string of length 1 or behavior is undefined.
+ * @param str string to be split
+ * @param delim string of length 1: delimiter to split str by
+ * @return char** array of string tokens, with last element 'NULL'
+*/
+char** split(char *str, char *delim){
+    // First, determine number of tokens
+    // Credit: https://stackoverflow.com/questions/9052490/find-the-count-of-substring-in-string
+    int numTokens = 1;
+    const char *tmp = str;
+    while((tmp = strstr(tmp, delim))){
+        numTokens++;
+        tmp++;
+    }
+
+    // TODO - remove
+    printf("Number of tokens: %d\n", numTokens);
+
+    // Create 2D array of string tokens
+    char **array = (char**) malloc(numTokens+1 * sizeof(char*));
+
+    int capacity = strlen(str);
+    for (int i = 0; i < numTokens; i++) {
+        array[i] = (char*) malloc(capacity * sizeof(char));
+        array[i][0] = '\0';
+    }
+
+    // assign token strings to individual array elements
+    for (int i = 0; i < numTokens; i++) {
+        strcpy(array[i], strtok(str, delim));
+    }
+    array[numTokens] = NULL; // lets us find end of array later
+
+    return array;
+}
