@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
 		// split command into terms
 		char **terms = split(cmdline, " ");
 		
-		// print out all the tokens
+		//print out all the tokens
 		int i = 0;
 		while (terms[i] != NULL) {
 			printf("%s\n", terms[i]);
@@ -72,7 +72,4 @@ int main(int argc, char *argv[]) {
 	}
 	
 
-
-
-	
 }

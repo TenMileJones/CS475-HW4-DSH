@@ -51,7 +51,8 @@ void trimwhitespace(char *str) {
 /**
  * Splits string into array of strings split by a delimiter.
  * Delimiter must be string of length 1 or behavior is undefined.
- * @param str string to be split
+ * 
+ * @param str string to be split. This string will be destroyed.
  * @param delim string of length 1: delimiter to split str by
  * @return char** array of string tokens, with last element 'NULL'
 */
@@ -69,17 +70,21 @@ char** split(char *str, char *delim){
     printf("Number of tokens: %d\n", numTokens);
 
     // Create 2D array of string tokens
-    char **array = (char**) malloc(numTokens+1 * sizeof(char*));
+    char **array = (char**) malloc((numTokens+1) * sizeof(char*));
 
     int capacity = strlen(str);
+    printf("%d\n", capacity);
     for (int i = 0; i < numTokens; i++) {
         array[i] = (char*) malloc(capacity * sizeof(char));
         array[i][0] = '\0';
     }
 
+
     // assign token strings to individual array elements
-    for (int i = 0; i < numTokens; i++) {
-        strcpy(array[i], strtok(str, delim));
+    strcpy(array[0], strtok(str, delim));
+    for (int i = 1; i < numTokens; i++) {
+        strcpy(array[i], strtok(NULL, delim));
+        printf("%s\n", array[i]);
     }
     array[numTokens] = NULL; // lets us find end of array later
 
