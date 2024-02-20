@@ -44,8 +44,6 @@ void trimwhitespace(char *str) {
         memmove(str, str + start, end - start + 1);
         str[end - start + 1] = '\0';
     }
-    // TODO - remove
-    printf("Whitespace checker: [%s]\n", str);
 }
 
 /**
@@ -66,25 +64,19 @@ char** split(char *str, char *delim){
         tmp++;
     }
 
-    // TODO - remove
-    printf("Number of tokens: %d\n", numTokens);
-
     // Create 2D array of string tokens
     char **array = (char**) malloc((numTokens+1) * sizeof(char*));
 
     int capacity = strlen(str);
-    printf("%d\n", capacity);
     for (int i = 0; i < numTokens; i++) {
         array[i] = (char*) malloc(capacity * sizeof(char));
         array[i][0] = '\0';
     }
 
-
     // assign token strings to individual array elements
     strcpy(array[0], strtok(str, delim));
     for (int i = 1; i < numTokens; i++) {
         strcpy(array[i], strtok(NULL, delim));
-        printf("%s\n", array[i]);
     }
     array[numTokens] = NULL; // lets us find end of array later
 

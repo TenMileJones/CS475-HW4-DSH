@@ -51,25 +51,44 @@ int main(int argc, char *argv[]) {
 		// split command into terms
 		char **terms = split(cmdline, " ");
 		
-		//print out all the tokens
+		// TODO - remove
 		int i = 0;
+		printf("Print out all tokens:\n");
 		while (terms[i] != NULL) {
 			printf("%s\n", terms[i]);
 			i++;
 		}
 
+		// exit
 		if (!strcmp(terms[0], "exit")){
-			printf("Get me out!\n");
 			exit(0);
-		} else {
-			printf("Not done yet...\n");
 		}
 		
+		// pwd
+		if (!strcmp(terms[0], "pwd")){
+			char *pwd = getcwd(NULL, MAXBUF);
+			printf("%s\n", pwd);
+			free(pwd);
+			continue;
+		}
 
-
-
+		// cd
+		if (!strcmp(terms[0], "cd")){
+			if(terms[1] == NULL){
+				chdir("/home/bhjones");
+				printf("/home/bhjones\n");
+				continue;
+			}
+			if(chdir(terms[1])){
+				// If path is invalid
+				printf("dsh: cd: %s: No such file or directory\n", terms[1]);
+				continue;
+			}
+			printf("%s\n", terms[1]);
+			continue;
+		}
 
 	}
 	
-
+	free(cmdline);
 }
