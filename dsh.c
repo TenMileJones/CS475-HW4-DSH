@@ -82,3 +82,18 @@ char** split(char *str, char *delim){
 
     return array;
 }
+
+/**
+ * Executes program at @param path with arguments @param args.
+ * If @param runInBackground is true, runs concurrently with parent process.
+*/
+void execute(char *path, char **args, int runInBackground){
+    int isParent = fork();
+    if(!isParent){
+        execv(path, args);
+    }
+    
+    if(!runInBackground){
+        wait(NULL);
+    }
+}

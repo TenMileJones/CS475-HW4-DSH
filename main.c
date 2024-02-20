@@ -50,13 +50,12 @@ int main(int argc, char *argv[]) {
 
 		// split command into terms
 		char **terms = split(cmdline, " ");
-		
-		// TODO - remove
-		int i = 0;
+		// get number of terms
+		int numTerms = 0;
 		printf("Print out all tokens:\n");
-		while (terms[i] != NULL) {
-			printf("%s\n", terms[i]);
-			i++;
+		while (terms[numTerms] != NULL) {
+			printf("%s\n", terms[numTerms]);
+			numTerms++;
 		}
 
 		// exit
@@ -87,6 +86,38 @@ int main(int argc, char *argv[]) {
 			printf("%s\n", terms[1]);
 			continue;
 		}
+
+		// command execution
+		if (terms[0][0] == '/'){
+			// full path
+			if(access(terms[0], F_OK | X_OK)){
+				// File doesn't exist or is not executable
+				printf("Command '%s' not found.\n", terms[0]);
+				continue;
+			} else {
+				// File exists and is executable
+				int runInBackground = FALSE;
+				if(terms[numTerms-1][0] == '&'){
+					runInBackground = TRUE;
+					terms[numTerms-1] = NULL;
+				}
+				
+				// Determine if multiple args exist
+				if(terms[1] == NULL){
+					// No args, just run
+					execute(terms[0], NULL, runInBackground);
+				} else {
+					execute(terms[0], terms, runInBackground);
+				}
+
+			}
+		} else {
+			// path construction necessary
+			
+		}
+
+		free(terms);
+
 
 	}
 	

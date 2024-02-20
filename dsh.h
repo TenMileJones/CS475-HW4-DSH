@@ -6,5 +6,6 @@
 
 void trimwhitespace(char *str);
 char** split(char *str, char *delim);
+void execute(char *path, char **args, int runInBackground);
 
 
