@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
 		printf("dsh> ");
 		// reads up to 256 characters into the buffer
 		if (fgets(cmdline, MAXBUF, stdin) == NULL) {
+			free(cmdline);
 			exit(0);  // exit the program if EOF is input
 		}
 		
@@ -52,14 +53,14 @@ int main(int argc, char *argv[]) {
 		char **terms = split(cmdline, " ");
 		// get number of terms
 		int numTerms = 0;
-		printf("Print out all tokens:\n");
 		while (terms[numTerms] != NULL) {
-			printf("%s\n", terms[numTerms]);
 			numTerms++;
 		}
 
 		// exit
 		if (!strcmp(terms[0], "exit")){
+			free(cmdline);
+			free2DArray(terms);
 			exit(0);
 		}
 		
@@ -68,6 +69,7 @@ int main(int argc, char *argv[]) {
 			char *pwd = getcwd(NULL, MAXBUF);
 			printf("%s\n", pwd);
 			free(pwd);
+			free2DArray(terms);
 			continue;
 		}
 
@@ -76,14 +78,17 @@ int main(int argc, char *argv[]) {
 			if(terms[1] == NULL){
 				chdir("/home/bhjones");
 				printf("/home/bhjones\n");
+				free2DArray(terms);
 				continue;
 			}
 			if(chdir(terms[1])){
 				// If path is invalid
 				printf("dsh: cd: %s: No such file or directory\n", terms[1]);
+				free2DArray(terms);
 				continue;
 			}
 			printf("%s\n", terms[1]);
+			free2DArray(terms);
 			continue;
 		}
 
@@ -93,33 +98,71 @@ int main(int argc, char *argv[]) {
 			if(access(terms[0], F_OK | X_OK)){
 				// File doesn't exist or is not executable
 				printf("Command '%s' not found.\n", terms[0]);
+				free2DArray(terms);
 				continue;
 			} else {
 				// File exists and is executable
-				int runInBackground = FALSE;
-				if(terms[numTerms-1][0] == '&'){
-					runInBackground = TRUE;
-					terms[numTerms-1] = NULL;
-				}
-				
-				// Determine if multiple args exist
-				if(terms[1] == NULL){
-					// No args, just run
-					execute(terms[0], NULL, runInBackground);
-				} else {
-					execute(terms[0], terms, runInBackground);
-				}
-
+				execute(terms, numTerms);
+				free2DArray(terms);
 			}
 		} else {
 			// path construction necessary
-			
+			// is it in current directory?
+			char *executable = getcwd(NULL, (MAXBUF-2-strlen(terms[0])));
+			if (executable == NULL){
+				printf("Error: input too long. Shorten input.\n");
+				free2DArray(terms);
+				continue;
+			}
+			strcat(executable, "/");
+			strcat(executable, terms[0]);
+			// try it
+			if(access(executable, F_OK | X_OK) == 0){
+				// File is in CWD. Execute
+				terms[0] = executable;
+				execute(terms, numTerms);
+				free2DArray(terms);
+			} else {
+				// path construction NECESSARY
+				executable = (char*) realloc(executable, MAXBUF);
+				executable[0] = '\0';
+				strcpy(executable, getenv("PATH"));
+
+				// tokenize paths
+				char **paths = split(executable, ":");
+
+				// attempt to execute on each path
+				int i = 0;
+				int foundpath = FALSE;
+				while (paths[i] != NULL) {
+					executable = (char*) realloc(executable, (MAXBUF-2-strlen(terms[0])));
+					if (executable == NULL){
+						printf("Error: input too long. Shorten input.\n");
+						break;
+					}
+					executable[0] = '\0';
+					strcpy(executable, paths[numTerms]);
+					strcat(executable, "/");
+					strcat(executable, terms[0]);
+					i++;
+
+					if(access(executable, F_OK | X_OK) == 0){
+						// File is in CWD. Execute and end search
+						terms[0] = executable;
+						execute(terms, numTerms);
+						foundpath = TRUE;
+						break;
+					}
+				}
+				if(!foundpath){
+					// File doesn't exist or is not executable
+					printf("Command '%s' not found.\n", terms[0]);
+				}
+				free2DArray(terms);
+				free2DArray(paths);
+			}
+			free(executable);
 		}
-
-		free(terms);
-
-
 	}
-	
 	free(cmdline);
 }

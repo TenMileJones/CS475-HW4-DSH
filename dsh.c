@@ -84,16 +84,36 @@ char** split(char *str, char *delim){
 }
 
 /**
- * Executes program at @param path with arguments @param args.
- * If @param runInBackground is true, runs concurrently with parent process.
+ * Executes program at args[0] with arguments **args.
+ * @param args array of arguments
+ * @param numArgs number of arguments in args
 */
-void execute(char *path, char **args, int runInBackground){
+void execute(char **args, int numArgs){
+    int runInBackground = FALSE;
+    if(args[numArgs-1][0] == '&'){
+        runInBackground = TRUE;
+        args[numArgs-1] = NULL;
+    }
+    
     int isParent = fork();
     if(!isParent){
-        execv(path, args);
+        execv(args[0], args);
     }
     
     if(!runInBackground){
         wait(NULL);
     }
+}
+
+/**
+ * Frees 2D array and all contents inside of it
+ * @param freeMe 2D array
+*/
+void free2DArray(char **freeMe){
+    int i = 0;
+    while (freeMe[i] != NULL) {
+		free(freeMe[i]);
+        i++;
+	}
+    free(freeMe);
 }
