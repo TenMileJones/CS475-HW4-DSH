@@ -1,8 +1,8 @@
 /*
  * main.c
  *
- *  Created on: Mar 17 2017
- *      Author: david
+ *  Version: Feb 20 2024
+ *      Author: Branson
  */
 
 #include <stdio.h>
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 			continue; // reprompt if entry is empty or just spaces
 		}
 
-		// split command into terms
+		// split commandline input into terms
 		char **terms = split(cmdline, " ");
 		// get number of terms
 		int numTerms = 0;
@@ -98,13 +98,11 @@ int main(int argc, char *argv[]) {
 			if(access(terms[0], F_OK | X_OK)){
 				// File doesn't exist or is not executable
 				printf("Command '%s' not found.\n", terms[0]);
-				free2DArray(terms);
-				continue;
 			} else {
 				// File exists and is executable
 				execute(terms, numTerms);
-				free2DArray(terms);
 			}
+			free2DArray(terms);
 		} else {
 			// path construction necessary
 			// is it in current directory?
@@ -121,7 +119,6 @@ int main(int argc, char *argv[]) {
 				// File is in CWD. Execute
 				terms[0] = executable;
 				execute(terms, numTerms);
-				free2DArray(terms);
 			} else {
 				// path construction NECESSARY
 				executable = (char*) realloc(executable, MAXBUF);
@@ -130,18 +127,20 @@ int main(int argc, char *argv[]) {
 
 				// tokenize paths
 				char **paths = split(executable, ":");
-
+				
 				// attempt to execute on each path
 				int i = 0;
 				int foundpath = FALSE;
 				while (paths[i] != NULL) {
+					
 					executable = (char*) realloc(executable, (MAXBUF-2-strlen(terms[0])));
 					if (executable == NULL){
 						printf("Error: input too long. Shorten input.\n");
 						break;
 					}
+
 					executable[0] = '\0';
-					strcpy(executable, paths[numTerms]);
+					strcpy(executable, paths[i]);
 					strcat(executable, "/");
 					strcat(executable, terms[0]);
 					i++;
@@ -158,10 +157,9 @@ int main(int argc, char *argv[]) {
 					// File doesn't exist or is not executable
 					printf("Command '%s' not found.\n", terms[0]);
 				}
-				free2DArray(terms);
 				free2DArray(paths);
 			}
-			free(executable);
+			free2DArray(terms);
 		}
 	}
 	free(cmdline);
