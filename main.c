@@ -117,6 +117,7 @@ int main(int argc, char *argv[]) {
 			// try it
 			if(access(executable, F_OK | X_OK) == 0){
 				// File is in CWD. Execute
+				free(terms[0]);
 				terms[0] = executable;
 				execute(terms, numTerms);
 			} else {
@@ -147,6 +148,7 @@ int main(int argc, char *argv[]) {
 
 					if(access(executable, F_OK | X_OK) == 0){
 						// File is in CWD. Execute and end search
+						free(terms[0]);
 						terms[0] = executable;
 						execute(terms, numTerms);
 						foundpath = TRUE;
