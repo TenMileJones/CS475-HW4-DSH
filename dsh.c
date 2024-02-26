@@ -67,7 +67,7 @@ char** split(char *str, char *delim){
     // Create 2D array of string tokens
     char **array = (char**) malloc((numTokens+1) * sizeof(char*));
 
-    int capacity = strlen(str);
+    int capacity = strlen(str)+1;
     for (int i = 0; i < numTokens; i++) {
         array[i] = (char*) malloc(capacity * sizeof(char));
         array[i][0] = '\0';
@@ -92,15 +92,20 @@ void execute(char **args, int numArgs){
     int runInBackground = FALSE;
     if(args[numArgs-1][0] == '&'){
         runInBackground = TRUE;
+        free(args[numArgs-1]);
         args[numArgs-1] = NULL;
+        numArgs--;
     }
-    
+
     int isParent = fork();
     if(!isParent){
         execv(args[0], args);
     }
     
     if(!runInBackground){
+        wait(NULL);
+        // both waits ARE necessary. Prevents a zombie process created from using '&'
+        //  to run processes concurrently from causing all future processes to run concurrently.
         wait(NULL);
     }
 }
